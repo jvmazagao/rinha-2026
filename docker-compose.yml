@@ -17,7 +17,7 @@ services:
       - backend
 
   api1:
-    build: .
+    image: ghcr.io/jvmazagao/rinha-2026:submission
     environment:
       - GOMAXPROCS=1
     deploy:
@@ -29,7 +29,7 @@ services:
       - backend
 
   api2:
-    build: .
+    image: ghcr.io/jvmazagao/rinha-2026:submission
     environment:
       - GOMAXPROCS=1
     deploy:
