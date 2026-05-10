@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go version *)",
+      "Bash(go mod *)",
+      "Bash(mkdir -p cmd/api internal/vectorize internal/knn internal/dataset resources)",
+      "Bash(go build *)",
+      "Bash(/tmp/api-test)",
+      "Bash(curl -s -X POST http://localhost:9999/fraud-score -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s http://localhost:9999/ready -o /dev/null -w \"%{http_code}\")",
+      "Bash(kill %1)",
+      "Bash(pkill -f api-test)",
+      "Bash(curl -s -X POST http://localhost:9999/fraud-score -H 'Content-Type: application/json' -d '{\"amount\":250,\"installments\":1,\"requested_at\":\"2024-03-15T14:30:00Z\",\"last_transaction\":null,\"terminal\":{\"is_online\":true,\"card_present\":false,\"km_from_home\":3.1},\"merchant\":{\"id\":\"merchant-abc\",\"mcc\":\"7995\",\"avg_amount\":300},\"customer\":{\"avg_amount\":200,\"tx_count_24h\":3,\"known_merchants\":[\"merchant-xyz\"]}}')",
+      "Bash(curl -s -X POST http://localhost:9999/fraud-score -H 'Content-Type: application/json' -d '{\"amount\":50,\"installments\":1,\"requested_at\":\"2024-03-15T10:00:00Z\",\"last_transaction\":{\"km_from_current\":1.0,\"requested_at\":\"2024-03-15T09:50:00Z\"},\"terminal\":{\"is_online\":false,\"card_present\":true,\"km_from_home\":0.5},\"merchant\":{\"id\":\"my-grocery\",\"mcc\":\"5411\",\"avg_amount\":80},\"customer\":{\"avg_amount\":75,\"tx_count_24h\":2,\"known_merchants\":[\"my-grocery\"]}}')"
+    ]
+  }
+}
