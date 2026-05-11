@@ -41,12 +41,15 @@ func (b *bufPool) put(v *[]float32) { b.p.Put(v) }
 
 var pool = newBufPool()
 
-// knnBuf avoids heap allocation for the heap candidates.
 type knnBuf [knn.K]knn.Candidate
 
 var knnPool = sync.Pool{New: func() any { return new(knnBuf) }}
 
 func handleFraudScore(w http.ResponseWriter, r *http.Request) {
+	if !ready.Load() {
+		http.Error(w, "service unavailable", http.StatusServiceUnavailable)
+		return
+	}
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -70,7 +73,6 @@ func handleFraudScore(w http.ResponseWriter, r *http.Request) {
 	approved := fraudScore < 0.6
 
 	w.Header().Set("Content-Type", "application/json")
-	// manual JSON to avoid encoding/json overhead on the hot path
 	resp := `{"approved":` + strconv.FormatBool(approved) + `,"fraud_score":` + strconv.FormatFloat(fraudScore, 'f', -1, 64) + `}`
 	w.Write([]byte(resp))
 }
@@ -85,6 +87,17 @@ func handleReady(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/fraud-score", handleFraudScore)
+	mux.HandleFunc("/ready", handleReady)
+
+	go func() {
+		log.Println("listening on :9999")
+		if err := http.ListenAndServe(":9999", mux); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	var err error
 	ds, err = dataset.LoadReferences("resources/references.json.gz")
@@ -104,13 +117,7 @@ func main() {
 	}
 
 	ready.Store(true)
+	log.Println("ready")
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/fraud-score", handleFraudScore)
-	mux.HandleFunc("/ready", handleReady)
-
-	log.Println("listening on :9999")
-	if err := http.ListenAndServe(":9999", mux); err != nil {
-		log.Fatal(err)
-	}
+	select {}
 }
